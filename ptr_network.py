@@ -102,8 +102,7 @@ class Decoder(nn.Module):
             loss: List[Tensor] = []
         x = ConvexHull.special_symbol.unsqueeze(0)
 
-        # _seq = [ConvexHull.special_symbol] + seq
-        # stack_seq = torch.stack(_seq)
+        # the special symbol is fed to the model to tell it to "start decoding"
         _seq = seq + [ConvexHull.special_symbol]
         stack_seq = torch.stack(_seq)
 
@@ -128,6 +127,8 @@ class Decoder(nn.Module):
             pointer_logits.append(logits)
             decoder_states.append(h)
             dist = softmax(pointer_logits[-1], dim=1)
+            # Beam-search should be implemented here, but the greedy strategy seems to be
+            # working alright.
             index = cast(int, dist.topk(1)[1].item())
             decoded_sequence.append(index)
             if index == len(seq):
@@ -154,7 +155,6 @@ class Decoder(nn.Module):
                 x = main_loop()
             if chose_special_symbol:
                 decoded_sequence.pop()
-            print('hello')
             return DecoderOutput(decoded_sequence, pointer_logits, decoder_states)
 
 

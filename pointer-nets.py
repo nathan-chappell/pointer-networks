@@ -81,6 +81,7 @@ hull_demo()
 # +
 from convex_hull_dataset import ConvexHullSample
 import torch
+import ptr_network
 
 model = torch.load('trained_model.pt')
 
@@ -89,12 +90,13 @@ def hull_model_demo(size=8):
     model_result = model(sample.points)
     points = np.stack([p.numpy()[:2] for p in sample.points])
     print(model_result.decoded_seq)
-#     verts = points[model_result.decoded_seq]
+#     verts = points[model_result.decoded_seq[:-1]]
+    verts = points[model_result.decoded_seq]
     plot_points(points)
-#     plot_hull(verts)
+    plot_hull(verts)
 
 
-hull_model_demo()
+hull_model_demo(15)
 # -
 
 # ## Delaunay Demo
