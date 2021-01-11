@@ -67,7 +67,7 @@ class Trainer:
         model: PointerNet,
         training_dataset: ConvexHullDataset,
         validation_dataset: ConvexHullDataset,
-        name: str = "pointer_net_trainer",
+        name: str = "pointer_net_trainer_2",
     ):
         self.model = model
         self.training_dataset = training_dataset
@@ -97,6 +97,7 @@ class Trainer:
                         loss.backward(retain_graph=True)
                     if i % self.state.mini_batch_size == 0:
                         self.state.optimizer.step()
+        print(f"epoch loss: loss: {epoch_loss:8.3f}")
         return epoch_loss
 
     def train(self):
@@ -104,12 +105,12 @@ class Trainer:
             for epoch in range(1, self.state.epochs + 1):
                 print(f"Starting epoch: {epoch}")
                 epoch_loss = self.run_epoch(self.training_dataset, is_training=True)
-                print(f"epoch: {epoch:2}, loss: {epoch_loss:8.3f}")
                 self.state.training_loss.append(epoch_loss)
                 if epoch % self.state.validation_rate == 0:
                     # this is "smart training" (...)
                     # if our validation scores decrease, then step the lr_scheduler
                     if not self.validate():
+                        print('stepping lr')
                         self.state.lr_scheduler.step()
                 if epoch % self.state.checkpoint_rate == 0:
                     self.checkpoint(f"epoch_{epoch}")
@@ -125,8 +126,7 @@ class Trainer:
     def checkpoint(self, note: str):
         torch.save(self, f"{self.name}_{note}.pt")
 
-
-def main():
+def run_new_training():
     training_dataset = create_dataset(2 ** 16)
     validation_dataset = create_dataset(2 ** 8)
     hidden_d = 128
@@ -140,5 +140,3 @@ def main():
     trainer.train()
 
 
-if __name__ == "__main__":
-    main()

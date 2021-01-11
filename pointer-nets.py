@@ -59,8 +59,7 @@ def get_hull(points):
     return points[verts]
 
 
-def plot_hull(points):
-    verts = get_hull(points)
+def plot_hull(verts):
     plt.scatter(verts[:, 0], verts[:, 1], s=4)
     # surrounding polygon
     ax = plt.gca()
@@ -72,11 +71,30 @@ def plot_hull(points):
 
 def hull_demo():
     points = get_points()
+    verts = get_hull(points)
     plot_points(points)
-    plot_hull(points)
+    plot_hull(verts)
 
 
 hull_demo()
+
+# +
+from convex_hull_dataset import ConvexHullSample
+import torch
+
+model = torch.load('trained_model.pt')
+
+def hull_model_demo(size=8):
+    (sample,) = ConvexHullSample.create_samples(1,size)
+    model_result = model(sample.points)
+    points = np.stack([p.numpy()[:2] for p in sample.points])
+    print(model_result.decoded_seq)
+#     verts = points[model_result.decoded_seq]
+    plot_points(points)
+#     plot_hull(verts)
+
+
+hull_model_demo()
 # -
 
 # ## Delaunay Demo

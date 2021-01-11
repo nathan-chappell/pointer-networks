@@ -122,7 +122,7 @@ class Decoder(nn.Module):
         #
 
         def main_loop() -> Tensor:
-            nonlocal h, c, pointer_logits, decoder_states, decoded_sequence
+            nonlocal h, c, pointer_logits, decoder_states, decoded_sequence, chose_special_symbol
             h, c = self.lstm(x, (h, c))
             logits = self.pointer(h, encoder_states)
             pointer_logits.append(logits)
@@ -152,6 +152,9 @@ class Decoder(nn.Module):
             # max_length is reached or special symbol selected
             while len(pointer_logits) < Decoder.max_length and not chose_special_symbol:
                 x = main_loop()
+            if chose_special_symbol:
+                decoded_sequence.pop()
+            print('hello')
             return DecoderOutput(decoded_sequence, pointer_logits, decoder_states)
 
 
